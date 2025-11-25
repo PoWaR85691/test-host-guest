@@ -16,13 +16,6 @@ bool sendToFd(int fd, const Bytes& data)
         return false;
     }
 
-    // The final character must be sent so that the guest machine driver can read the data
-    char end = '\n';
-    if (write(fd, &end, sizeof(end)) < 0) {
-        perror("write end");
-        return false;
-    }
-
     return true;
 }
 
@@ -39,12 +32,6 @@ std::pair<bool, Bytes> receiveFromFd(int fd)
     data.resize(size, 0);
     if (read(fd, data.data(), size) < 0) {
         perror("read data");
-        return { false, Bytes() };
-    }
-
-    char end = '\0';
-    if (read(fd, &end, sizeof(end)) < 0) {
-        perror("read end");
         return { false, Bytes() };
     }
 
