@@ -2,12 +2,12 @@
 #define HOSTCONNECTION_H
 
 #include "baseconnection.h"
-#include <string>
+#include <string_view>
 
 class HostConnection : public BaseConnection
 {
 public:
-    HostConnection(const std::string& address);
+    HostConnection(std::string_view address);
     ~HostConnection();
 
     bool isValid() const override;

@@ -1,11 +1,14 @@
 #include "guestconnection.h"
 
 #include <fcntl.h>
+#include <string_view>
 #include <unistd.h>
 
 #include "common.h"
 
-GuestConnection::GuestConnection(const std::string& address)
+using namespace std::string_literals;
+
+GuestConnection::GuestConnection(std::string_view address)
 {
     m_address = address;
 }
@@ -18,9 +21,8 @@ bool GuestConnection::isValid() const
 bool GuestConnection::send(const Bytes& data)
 {
     // The driver allows you to work with only one open file
-    int fdDev = open(m_address.c_str(), O_WRONLY);
+    int fdDev = openDev(O_WRONLY, "send");
     if (fdDev < 0) {
-        perror("open to send");
         return false;
     }
 
@@ -33,9 +35,8 @@ bool GuestConnection::send(const Bytes& data)
 std::pair<bool, Bytes> GuestConnection::receive()
 {
     // The driver allows you to work with only one open file
-    int fdDev = open(m_address.c_str(), O_RDONLY);
+    int fdDev = openDev(O_RDONLY, "receive");
     if (fdDev < 0) {
-        perror("open to receive");
         return { false, Bytes() };
     }
 
@@ -43,4 +44,14 @@ std::pair<bool, Bytes> GuestConnection::receive()
 
     close(fdDev);
     return status;
+}
+
+int GuestConnection::openDev(int mode, std::string_view info)
+{
+    int fdDev = open(m_address.c_str(), mode);
+    if (fdDev < 0) {
+        perror(("open to "s + std::string(info)).c_str());
+        return -1;
+    }
+    return fdDev;
 }

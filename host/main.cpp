@@ -1,6 +1,5 @@
 #include "hostconnection.h"
 
-#include <cstring>
 #include <iostream>
 #include <string>
 #include <string_view>
